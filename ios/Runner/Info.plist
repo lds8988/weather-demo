@@ -41,5 +41,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>需要定位权限获取当前城市，以自动显示当前城市的天气</string>
 </dict>
 </plist>

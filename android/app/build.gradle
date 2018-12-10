@@ -39,6 +39,25 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                AMAP_KEY : "65189ba83dcaabf91ff82059e3dc095f", /// 高德地图key
+        ]
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'weather_key_01'
+            keyPassword '123456'
+            storeFile file('../weather')
+            storePassword '123456'
+        }
+        debug {
+            keyAlias 'weather_key_01'
+            keyPassword '123456'
+            storeFile file('../weather')
+            storePassword '123456'
+        }
     }
 
     buildTypes {
