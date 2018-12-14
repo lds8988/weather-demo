@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_demo/pages/add_city.dart';
 import 'package:weather_demo/pages/weather_detail.dart';
 import 'package:amap_location/amap_location.dart';
 
@@ -24,6 +25,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: WeatherDetail(city: ""),
+      routes: {
+        "addCity": (BuildContext context) => AddCity()
+      },
     );
   }
 }

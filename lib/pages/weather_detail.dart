@@ -10,7 +10,7 @@ class WeatherDetail extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new WeatherState();
+    return WeatherState();
   }
 }
 
@@ -25,39 +25,55 @@ class WeatherState extends State<WeatherDetail> {
       appBar: AppBar(
         title: Text(
           widget.city.isEmpty ? '$_tittle' : widget.city,
-          style: new TextStyle(color: Colors.black45),
+          style: TextStyle(color: Colors.black45),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: new IconThemeData(color: Colors.black45),
+        iconTheme: IconThemeData(color: Colors.black45),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Weather Demo',
+              "Weather Demo",
             ),
           ],
         ),
       ),
-      drawer: Drawer(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+                padding: EdgeInsets.zero,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: ExactAssetImage("images/header.jpeg"),
+                        fit: BoxFit.fill)),
+                child: Stack(
+                  alignment: const Alignment(-0.8, 0.8),
+                  children: <Widget>[
+                    Text(
+                      "添加的城市",
+                      style: TextStyle(color: Colors.white, fontSize: 25),
+                    )
+                  ],
+                )),
+            ListTile(
+              title: Text("添加城市"),
+              leading: CircleAvatar(
+                child: Icon(Icons.add_location),
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, "addCity").then((value) {
+                  print(value);
+                });
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -80,7 +96,6 @@ class WeatherState extends State<WeatherDetail> {
       _loc = loc;
 
       _tittle = loc.city.isEmpty ? "定位失败..." : loc.city;
-
 
       print("tittle:" + _tittle);
     });
