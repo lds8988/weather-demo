@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
@@ -74,8 +73,13 @@ class CityItem extends StatelessWidget {
         Navigator.pop(context, city);
       }),
       child: ListTile(
-        title: Text((city.name == city.parentCity ? city.name + "市" : city.parentCity + "市" + city.name + "区")
-            + ", " + city.adminArea + ", " + city.cnty),
+        title: Text((city.name == city.parentCity
+                ? city.name + "市"
+                : city.parentCity + "市" + city.name + "区") +
+            ", " +
+            city.adminArea +
+            ", " +
+            city.cnty),
       ),
     );
   }
