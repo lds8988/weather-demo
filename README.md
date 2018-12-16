@@ -1,16 +1,11 @@
 # weather_demo
 
-A new Flutter application.
+天气预报 app flutter demo。
 
-## Getting Started
+## 主要功能
 
-This project is a starting point for a Flutter application.
+* 自动定位当前城市并显示天气信息（ps：用模拟器偶尔会定位失败; 因为没有苹果开发者账号，所以 ios 设备不能定位）
+* 搜索城市
+* 添加城市
+* 删除城市
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.io/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
