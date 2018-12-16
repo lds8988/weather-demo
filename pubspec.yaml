@@ -26,11 +26,15 @@ dependencies:
 
   flutter_search_bar: ^2.0.7
 
-  easy_alert:
+  easy_alert: ^0.0.2
 
   dio: ^1.0.9
 
   json_annotation: ^1.2.0
+
+  sqflite: ^0.13.0
+
+  path_provider: ^0.4.1
 
 dev_dependencies:
   flutter_test:

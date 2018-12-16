@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:dio/dio.dart';
@@ -52,8 +51,10 @@ class SearchState extends State<AddCity> {
     return Scaffold(
       appBar: searchBar.build(context),
       body: Container(
-        child: ListView.builder(
+        child: ListView.separated(
           itemCount: cityList.length,
+          separatorBuilder: (BuildContext context, int index) =>
+              new Divider(), // 添加分割线
           itemBuilder: (context, index) => CityItem(cityList[index]),
         ),
       ),
@@ -75,7 +76,7 @@ class CityItem extends StatelessWidget {
       child: ListTile(
         title: Text((city.name == city.parentCity
                 ? city.name + "市"
-                : city.parentCity + "市" + city.name + "区") +
+                : city.parentCity + "市" + city.name) +
             ", " +
             city.adminArea +
             ", " +

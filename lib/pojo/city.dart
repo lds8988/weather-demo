@@ -29,5 +29,24 @@ class City {
     return 'City{name: $name, cid: $cid, parentCity: $parentCity, adminArea: $adminArea, cnty: $cnty}';
   }
 
+  City.fromMap(Map<String, dynamic> map) {
+    name = map["name"];
+    cid = map["cid"];
+    parentCity = map["parent_city"];
+    adminArea = map["admin_area"];
+    cnty = map["cnty"];
+  }
+
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      "name": name,
+      "cid": cid,
+      "parent_city": parentCity,
+      "admin_area": adminArea,
+      "cnty": cnty
+    };
+
+    return map;
+  }
 
 }
