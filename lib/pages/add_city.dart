@@ -16,7 +16,9 @@ class SearchState extends State<AddCity> {
 
   var dio = new Dio();
 
-  List<City> cityList = [];
+  //List<City> cityList = [];
+
+  Future<Response> _future;
 
   SearchState() {
     searchBar = SearchBar(
@@ -30,15 +32,17 @@ class SearchState extends State<AddCity> {
         });
   }
 
-  Future onSubmitted(String value) async {
-    Response response = await dio.get(
-        "https://search.heweather.com/find?key=340cfb442d9a454a8d5e8f36a6382886&location=" +
-            value);
-
+  void onSubmitted(String value) {
     setState(() {
-      cityList = CityList.fromJson(response.data['HeWeather6'][0]).cityList;
-      print(cityList);
+      _future = dio.get(
+          "https://search.heweather.com/find?key=340cfb442d9a454a8d5e8f36a6382886&location=$value");
+
     });
+
+//    setState(() {
+//      cityList = CityList.fromJson(response.data['HeWeather6'][0]).cityList;
+//      print(cityList);
+//    });
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -46,18 +50,95 @@ class SearchState extends State<AddCity> {
         title: Text("添加城市"), actions: [searchBar.getSearchAction(context)]);
   }
 
+  _showBody(snapshot) {
+    switch(snapshot.connectionState) {
+      case ConnectionState.none:
+        return Center(
+          child: Text("点击搜索按钮搜索并添加城市"),
+        );
+        break;
+      case ConnectionState.waiting:
+        return Center(
+          child: Container(
+            alignment: AlignmentDirectional.center,
+            decoration: BoxDecoration(
+              color: Colors.white70,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(10.0)),
+              width: 300.0,
+              height: 200.0,
+              alignment: AlignmentDirectional.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 7.0,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: Center(
+                      child: Text(
+                        "数据加载中...",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        break;
+      default:
+        if(snapshot.hasError) {
+          print("get city data error: ${snapshot.error}");
+          return Center(child: Text("加载失败！"));
+        } else {
+
+          Response response = snapshot.data;
+
+          List<City> cityList = CityList.fromJson(response.data['HeWeather6'][0]).cityList;
+
+          print(cityList);
+
+          return Container(
+            child: ListView.separated(
+              itemCount: cityList.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  Divider(),
+              itemBuilder: (context, index) => CityItem(cityList[index]),
+            ),
+          );
+        }
+
+
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: searchBar.build(context),
-      body: Container(
-        child: ListView.separated(
-          itemCount: cityList.length,
-          separatorBuilder: (BuildContext context, int index) =>
-              new Divider(), // 添加分割线
-          itemBuilder: (context, index) => CityItem(cityList[index]),
-        ),
-      ),
+    return FutureBuilder<Response> (
+      future: _future,
+      builder: (context, snapshot) {
+        print(snapshot.connectionState);
+
+        return Scaffold(
+          appBar: searchBar.build(context),
+          body: _showBody(snapshot),
+        );
+      },
     );
   }
 }

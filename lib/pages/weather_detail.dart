@@ -340,21 +340,21 @@ class CityItem extends StatelessWidget {
 
   CityItem(this.city, this.onItemPressed, this.onItemLongPressed);
 
-  bool isLongPressed = false;
+  bool _isLongPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (() {
-        if (isLongPressed) {
-          isLongPressed = false;
+        if (_isLongPressed) {
+          _isLongPressed = false;
         } else {
           onItemPressed(city.cid);
         }
       }),
       onLongPress: () {
         onItemLongPressed(city.cid);
-        isLongPressed = true;
+        _isLongPressed = true;
       },
       child: ListTile(
         title: Text(
