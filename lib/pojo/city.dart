@@ -8,8 +8,8 @@ class City {
   String name;
 
   String cid;
-  @JsonKey(name: "parent_city")
 
+  @JsonKey(name: "parent_city")
   String parentCity;
 
   @JsonKey(name: "admin_area")
@@ -17,10 +17,21 @@ class City {
 
   String cnty;
 
-  
   City({this.name, this.cid, this.parentCity, this.adminArea, this.cnty});
 
-  factory City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
+  factory City.fromJson(Map<String, dynamic> json) {
+    City city = _$CityFromJson(json);
+
+    if(city.parentCity == null) {
+      city.parentCity = city.name;
+    }
+
+    if(city.adminArea == null) {
+      city.adminArea = "";
+    }
+
+    return city;
+  }
 
   Map<String, dynamic> toJson() => _$CityToJson(this);
 
@@ -48,5 +59,4 @@ class City {
 
     return map;
   }
-
 }

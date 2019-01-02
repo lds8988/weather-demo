@@ -3,6 +3,8 @@ import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:dio/dio.dart';
 import 'package:weather_demo/pojo/city.dart';
 import 'package:weather_demo/pojo/city_list.dart';
+import 'package:weather_demo/remote/hot_city_api.dart';
+import 'package:weather_demo/remote/search_city_api.dart';
 
 class AddCity extends StatefulWidget {
   @override
@@ -16,11 +18,14 @@ class SearchState extends State<AddCity> {
 
   var dio = new Dio();
 
-  //List<City> cityList = [];
-
   Future<Response> _future;
 
-  SearchState() {
+  List<Widget> _hotCityWidgets = [];
+
+  @override
+  void initState() {
+    super.initState();
+
     searchBar = SearchBar(
         inBar: false,
         hintText: "输入城市名称",
@@ -30,19 +35,32 @@ class SearchState extends State<AddCity> {
         onClosed: () {
           print("closed");
         });
+
+    HotCityApi hotCityApi = HotCityApi();
+    hotCityApi.send().then((Response response) {
+      print(response.data.runtimeType.toString());
+      List<City> cityList = CityList.fromJson(response.data).cityList;
+
+      for (int i = 0; i < cityList.length; i++) {
+        _hotCityWidgets.add(ActionChip(
+          onPressed: (() {
+            Navigator.pop(context, cityList[i]);
+          }),
+          label: Text(cityList[i].name),
+        ));
+      }
+      setState(() {
+        _hotCityWidgets = _hotCityWidgets;
+      });
+    });
   }
 
   void onSubmitted(String value) {
     setState(() {
-      _future = dio.get(
-          "https://search.heweather.com/find?key=340cfb442d9a454a8d5e8f36a6382886&location=$value");
-
+      SearchCityApi searchCityApi = SearchCityApi();
+      searchCityApi.getParams()["location"] = value;
+      _future = searchCityApi.send();
     });
-
-//    setState(() {
-//      cityList = CityList.fromJson(response.data['HeWeather6'][0]).cityList;
-//      print(cityList);
-//    });
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -50,11 +68,24 @@ class SearchState extends State<AddCity> {
         title: Text("添加城市"), actions: [searchBar.getSearchAction(context)]);
   }
 
-  _showBody(snapshot) {
-    switch(snapshot.connectionState) {
+  Widget _showBody(snapshot) {
+    switch (snapshot.connectionState) {
       case ConnectionState.none:
-        return Center(
-          child: Text("点击搜索按钮搜索并添加城市"),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 0, 0),
+              child: Text("热门城市："),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+              child: Wrap(
+                spacing: 16,
+                children: _hotCityWidgets,
+              ),
+            )
+          ],
         );
         break;
       case ConnectionState.waiting:
@@ -101,27 +132,25 @@ class SearchState extends State<AddCity> {
         );
         break;
       default:
-        if(snapshot.hasError) {
+        if (snapshot.hasError) {
           print("get city data error: ${snapshot.error}");
           return Center(child: Text("加载失败！"));
         } else {
-
           Response response = snapshot.data;
 
-          List<City> cityList = CityList.fromJson(response.data['HeWeather6'][0]).cityList;
+          List<City> cityList =
+              CityList.fromJson(response.data).cityList;
 
           print(cityList);
 
           return Container(
             child: ListView.separated(
               itemCount: cityList.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  Divider(),
+              separatorBuilder: (BuildContext context, int index) => Divider(),
               itemBuilder: (context, index) => CityItem(cityList[index]),
             ),
           );
         }
-
 
         break;
     }
@@ -129,7 +158,7 @@ class SearchState extends State<AddCity> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Response> (
+    return FutureBuilder<Response>(
       future: _future,
       builder: (context, snapshot) {
         print(snapshot.connectionState);
@@ -155,14 +184,23 @@ class CityItem extends StatelessWidget {
         Navigator.pop(context, city);
       }),
       child: ListTile(
-        title: Text((city.name == city.parentCity
-                ? city.name + "市"
-                : city.parentCity + "市" + city.name) +
-            ", " +
-            city.adminArea +
-            ", " +
-            city.cnty),
+        title: Text(genContent(city)),
       ),
     );
+  }
+
+  String genContent(City city) {
+    String content;
+    content = city.name == city.parentCity
+        ? "${city.name}市"
+        : "${city.parentCity}市${city.name}";
+
+    if(city.adminArea.isEmpty) {
+      content += ", ${city.cnty}";
+    } else {
+      content += ", ${city.adminArea}, ${city.cnty}";
+    }
+
+    return content;
   }
 }

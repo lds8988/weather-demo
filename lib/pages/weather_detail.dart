@@ -6,6 +6,7 @@ import 'package:easy_alert/easy_alert.dart';
 import 'package:weather_demo/db/city_dao.dart';
 import 'package:weather_demo/pojo/city.dart';
 import 'package:weather_demo/pojo/weather_data.dart';
+import 'package:weather_demo/remote/weather_data_api.dart';
 
 class WeatherDetail extends StatefulWidget {
   final String city;
@@ -32,16 +33,18 @@ class WeatherState extends State<WeatherDetail> {
   String _curLocation = "";
 
   Future _getWeatherData(String location) async {
-    Response response = await _dio.get(
-        "https://free-api.heweather.com/s6/weather/now?key=340cfb442d9a454a8d5e8f36a6382886&location=$location");
+
+    WeatherDataApi weatherDataApi = WeatherDataApi();
+    weatherDataApi.getParams()["location"] = location;
+    Response response = await weatherDataApi.send();
 
     setState(() {
       print(response.data);
 
-      _tittle = response.data["HeWeather6"][0]["basic"]["location"];
+      _tittle = response.data["basic"]["location"];
 
       _weatherData =
-          WeatherData.fromJson(response.data["HeWeather6"][0]["now"]);
+          WeatherData.fromJson(response.data["now"]);
     });
   }
 
@@ -227,7 +230,7 @@ class WeatherState extends State<WeatherDetail> {
                 leading: CircleAvatar(
                   child: Icon(Icons.add_location),
                 ),
-                trailing: new Icon(Icons.keyboard_arrow_right),
+                trailing: Icon(Icons.keyboard_arrow_right),
                 onTap: () {
                   Navigator.pushNamed(context, "addCity").then((value) async {
                     City city = value;
