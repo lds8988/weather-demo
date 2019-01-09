@@ -4,6 +4,7 @@ class HotCityApi extends BaseRequest {
 
   HotCityApi() {
     getParams()["group"] = "cn";
+    getParams()["number"] = "18";
   }
 
   @override

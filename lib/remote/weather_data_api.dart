@@ -8,7 +8,7 @@ class WeatherDataApi extends BaseRequest {
 
   @override
   String getPath() {
-    return "weather/now";
+    return "weather";
   }
 
 }

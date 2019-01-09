@@ -44,7 +44,15 @@ abstract class BaseRequest {
 
     _dio.interceptor.request.onSend = (Options options) {
       if (Constants.IS_DEBUG) {
-        print("url:${options.path}");
+        String path = "";
+
+        if(!options.path.contains("http")) {
+          path = options.baseUrl + options.path;
+        } else {
+          path = options.path;
+        }
+
+        print("url:$path");
         print("params:${options.data}");
         print("response type:${options.responseType}");
       }

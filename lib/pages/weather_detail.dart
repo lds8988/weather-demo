@@ -5,8 +5,12 @@ import 'package:simple_permissions/simple_permissions.dart';
 import 'package:easy_alert/easy_alert.dart';
 import 'package:weather_demo/db/city_dao.dart';
 import 'package:weather_demo/pojo/city.dart';
+import 'package:weather_demo/pojo/daily_weather_data.dart';
+import 'package:weather_demo/pojo/lifestyle.dart';
 import 'package:weather_demo/pojo/weather_data.dart';
+import 'package:weather_demo/pojo/now_weather_data.dart';
 import 'package:weather_demo/remote/weather_data_api.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class WeatherDetail extends StatefulWidget {
   final String city;
@@ -24,28 +28,55 @@ class WeatherState extends State<WeatherDetail> {
 
   WeatherData _weatherData = WeatherData.empty();
 
-  var _dio = new Dio();
-
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   List<City> _cityList = List();
 
   String _curLocation = "";
 
   Future _getWeatherData(String location) async {
-
     WeatherDataApi weatherDataApi = WeatherDataApi();
     weatherDataApi.getParams()["location"] = location;
     Response response = await weatherDataApi.send();
 
     setState(() {
-      print(response.data);
-
       _tittle = response.data["basic"]["location"];
 
-      _weatherData =
-          WeatherData.fromJson(response.data["now"]);
+      _weatherData = WeatherData.fromJson(response.data);
     });
+  }
+
+  Widget genDailyWeatherWidget(DailyWeatherData dailyWeatherData) {
+    return Padding(
+      padding: EdgeInsets.only(top: dp(30)),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(dailyWeatherData.date.substring(5),
+                style: TextStyle(color: Colors.grey, fontSize: dp(36))),
+            flex: 4,
+          ),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Image.asset("images/cond_icon/${dailyWeatherData.condCode}.png",
+                    width: dp(64), height: dp(64)),
+                Text(dailyWeatherData.cond,
+                    style: TextStyle(color: Colors.grey, fontSize: dp(36)))
+              ],
+            ),
+            flex: 3,
+          ),
+          Expanded(
+            child: Text(
+                "${dailyWeatherData.tmpMin}℃~${dailyWeatherData.tmpMax}℃",
+                style: TextStyle(color: Colors.grey, fontSize: dp(36)),
+                textAlign: TextAlign.right),
+            flex: 3,
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -60,146 +91,215 @@ class WeatherState extends State<WeatherDetail> {
             fit: BoxFit.cover,
           ),
           RefreshIndicator(
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.menu, color: Colors.grey),
-                          onPressed: () {
-                            _scaffoldKey.currentState.openDrawer();
-                          },
-                        ),
-                        Text(_tittle,
-                            style:
-                            TextStyle(color: Colors.grey, fontSize: 20)),
-                      ],
+            child: CustomScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              slivers: <Widget>[
+                SliverList(
+//                  physics: AlwaysScrollableScrollPhysics(),
+//                  padding: EdgeInsets.fromLTRB(dp(16), dp(180), dp(16), 0),
+                  delegate: SliverChildListDelegate([
+                    Padding(
+                      padding: EdgeInsets.only(top: dp(180)),
+                      child: Text(_weatherData.now.tmp + "℃",
+                          style:
+                              TextStyle(color: Colors.grey, fontSize: dp(130)),
+                          textAlign: TextAlign.center),
+                    ),
+                    Text(_weatherData.now.cond,
+                        style: TextStyle(color: Colors.grey, fontSize: dp(80)),
+                        textAlign: TextAlign.center),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(dp(16), dp(150), dp(16), 0),
+                      child: Column(
+                        children: _weatherData.dailyForecasts
+                            .map((DailyWeatherData dailyWeatherData) {
+                          return genDailyWeatherWidget(dailyWeatherData);
+                        }).toList(),
+                      ),
                     ),
                     Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.fromLTRB(16, 80, 16, 0),
-                        child: Column(
-                          children: <Widget>[
-                            Text(_weatherData.tmp + "℃",
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 80.0)),
-                            Text(_weatherData.cond,
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 45.0)),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(0, 280, 0, 0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset("images/ic_wind_dir.png",
-                                            width: 47, height: 47),
-                                        Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 10, 0, 0),
-                                            child: Text(
-                                                _weatherData.windSc + "级",
-                                                style: TextStyle(
-                                                    color: Colors.black45,
-                                                    fontSize: 20.0))),
-                                        Text(_weatherData.windDir,
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 18.0))
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset("images/ic_hum.png",
-                                            width: 48, height: 48),
-                                        Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 15, 0, 0),
-                                            child: Text(_weatherData.hum + "%",
-                                                style: TextStyle(
-                                                    color: Colors.black45,
-                                                    fontSize: 20.0))),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 4, 0, 0),
-                                          child: Text("相对湿度",
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 18.0)),
-                                        )
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset("images/ic_tem.png",
-                                            width: 48, height: 48),
-                                        Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 15, 0, 0),
-                                            child: Text(_weatherData.fl + "℃",
-                                                style: TextStyle(
-                                                    color: Colors.black45,
-                                                    fontSize: 20.0))),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 4, 0, 0),
-                                          child: Text("体感温度",
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 18.0)),
-                                        )
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset("images/ic_press.png",
-                                            width: 48, height: 48),
-                                        Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 15, 0, 0),
-                                            child: Text(
-                                                _weatherData.pres + "hPa",
-                                                style: TextStyle(
-                                                    color: Colors.black45,
-                                                    fontSize: 20.0))),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 4, 0, 0),
-                                          child: Text("大气压强",
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 18.0)),
-                                        )
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                ],
+                      decoration: BoxDecoration(
+                          color: Color(
+                        0x66ffffff,
+                      )),
+                      padding: EdgeInsets.fromLTRB(dp(16), dp(20), dp(16), 0),
+                      margin: EdgeInsets.only(top: dp(180)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                              "日出：${_weatherData.dailyForecasts.isEmpty ? "" : _weatherData.dailyForecasts[0].sunrise}",
+                              style: TextStyle(
+                                  fontSize: dp(24), color: Colors.black54)),
+                          Text(
+                              "日落：${_weatherData.dailyForecasts.isEmpty ? "" : _weatherData.dailyForecasts[0].sunset}",
+                              style: TextStyle(
+                                  fontSize: dp(24), color: Colors.black54))
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Color(
+                        0x66ffffff,
+                      )),
+                      padding: EdgeInsets.fromLTRB(0, dp(30), 0, dp(30)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Expanded(
+                            child: Column(
+                              children: <Widget>[
+                                Image.asset("images/ic_wind_dir.png",
+                                    width: dp(80), height: dp(80)),
+                                Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(0, dp(15), 0, 0),
+                                    child: Text(_weatherData.now.windSc + "级",
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: dp(36)))),
+                                Padding(
+                                  padding: EdgeInsets.only(top: dp(4)),
+                                  child: Text(_weatherData.now.windDir,
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: dp(24))),
+                                )
+                              ],
+                            ),
+                            flex: 1,
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: <Widget>[
+                                Image.asset("images/ic_hum.png",
+                                    width: dp(80), height: dp(80)),
+                                Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(0, dp(15), 0, 0),
+                                    child: Text(_weatherData.now.hum + "%",
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: dp(36)))),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
+                                  child: Text("相对湿度",
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: dp(24))),
+                                )
+                              ],
+                            ),
+                            flex: 1,
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: <Widget>[
+                                Image.asset("images/ic_tem.png",
+                                    width: dp(80), height: dp(80)),
+                                Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(0, dp(15), 0, 0),
+                                    child: Text(_weatherData.now.fl + "℃",
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: dp(36)))),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(0, dp(4), 0, 0),
+                                  child: Text("体感温度",
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: dp(24))),
+                                )
+                              ],
+                            ),
+                            flex: 1,
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: <Widget>[
+                                Image.asset("images/ic_press.png",
+                                    width: dp(80), height: dp(80)),
+                                Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(0, dp(15), 0, 0),
+                                    child: Text(_weatherData.now.pres + "hPa",
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: dp(36)))),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(0, dp(4), 0, 0),
+                                  child: Text("大气压强",
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: dp(24))),
+                                )
+                              ],
+                            ),
+                            flex: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ),
+                SliverPadding(
+                    padding: EdgeInsets.fromLTRB(0, dp(30), 0, 0),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          mainAxisSpacing: dp(5),
+                          crossAxisSpacing: dp(5),
+                          childAspectRatio: 0.7,
+                          crossAxisCount: 4),
+                      delegate: SliverChildListDelegate(
+                          _weatherData.lifestyles.map((Lifestyle lifestyle) {
+                        return Container(
+                          decoration: BoxDecoration(
+                              color: Color(
+                            0x50ffffff,
+                          )),
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Image.asset(lifestyle.getIcon(lifestyle.type),
+                                  width: dp(80), height: dp(80)),
+                              Padding(
+                                padding:
+                                    EdgeInsets.fromLTRB(0, dp(20), 0, dp(10)),
+                                child: Text(lifestyle.brf,
+                                    style: TextStyle(
+                                        color: Colors.black45,
+                                        fontSize: dp(24))),
                               ),
-                            )
-                          ],
-                        ))
-                  ],
-                )
+                              Text(lifestyle.getTypeTitle(lifestyle.type),
+                                  style: TextStyle(
+                                      color: Colors.black54, fontSize: dp(24)))
+                            ],
+                          ),
+                        );
+                      }).toList()),
+                    ))
               ],
             ),
             onRefresh: _loadData,
           ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.menu, color: Colors.grey),
+                  onPressed: () {
+                    _scaffoldKey.currentState.openDrawer();
+                  },
+                ),
+                Text(_tittle,
+                    style: TextStyle(color: Colors.grey, fontSize: dp(38))),
+              ],
+            ),
+          )
         ],
       ),
       drawer: Drawer(
@@ -220,13 +320,13 @@ class WeatherState extends State<WeatherDetail> {
                     children: <Widget>[
                       Text(
                         "添加的城市",
-                        style: TextStyle(color: Colors.white, fontSize: 25),
+                        style: TextStyle(color: Colors.white, fontSize: dp(38)),
                       )
                     ],
                   ));
             } else if (index == _cityList.length + 1) {
               return ListTile(
-                title: Text("添加城市"),
+                title: Text("添加城市", style: TextStyle(fontSize: dp(28))),
                 leading: CircleAvatar(
                   child: Icon(Icons.add_location),
                 ),
@@ -252,8 +352,6 @@ class WeatherState extends State<WeatherDetail> {
 
                       cityDao.close();
                     }
-
-                    //_getWeatherData(city.cid);
                   });
                 },
               );
@@ -344,6 +442,17 @@ class WeatherState extends State<WeatherDetail> {
     super.initState();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
+  }
+
+  double dp(int px) {
+    return ScreenUtil.instance.setWidth(px);
+  }
+
   void initData() async {
     CityDao cityDao = CityDao();
     await cityDao.open();
@@ -362,6 +471,8 @@ class WeatherState extends State<WeatherDetail> {
 
     super.dispose();
   }
+
+  Widget genLifeStyelItem(Lifestyle lifestyle) {}
 }
 
 class CityItem extends StatelessWidget {
@@ -394,9 +505,20 @@ class CityItem extends StatelessWidget {
           city.name == city.parentCity
               ? "${city.name}市"
               : "${city.parentCity}市${city.name}",
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: ScreenUtil.instance.setWidth(28)),
         ),
       ),
     );
+  }
+}
+
+class HourlyItem extends StatelessWidget {
+  final NowWeatherData _weatherDataDetail;
+
+  const HourlyItem(this._weatherDataDetail);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(_weatherDataDetail.cond);
   }
 }

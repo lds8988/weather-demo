@@ -38,7 +38,6 @@ class SearchState extends State<AddCity> {
 
     HotCityApi hotCityApi = HotCityApi();
     hotCityApi.send().then((Response response) {
-      print(response.data.runtimeType.toString());
       List<City> cityList = CityList.fromJson(response.data).cityList;
 
       for (int i = 0; i < cityList.length; i++) {
@@ -79,9 +78,9 @@ class SearchState extends State<AddCity> {
               child: Text("热门城市："),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: Wrap(
-                spacing: 16,
+                spacing: 13,
                 children: _hotCityWidgets,
               ),
             )

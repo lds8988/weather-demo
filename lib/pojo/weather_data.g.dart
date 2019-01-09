@@ -8,24 +8,23 @@ part of 'weather_data.dart';
 
 WeatherData _$WeatherDataFromJson(Map<String, dynamic> json) {
   return WeatherData(
-      fl: json['fl'] as String,
-      tmp: json['tmp'] as String,
-      condCode: json['cond_code'] as String,
-      cond: json['cond_txt'] as String,
-      windDir: json['wind_dir'] as String,
-      windSc: json['wind_sc'] as String,
-      hum: json['hum'] as String,
-      pres: json['pres'] as String);
+      (json['daily_forecast'] as List)
+          ?.map((e) => e == null
+              ? null
+              : DailyWeatherData.fromJson(e as Map<String, dynamic>))
+          ?.toList(),
+      json['now'] == null
+          ? null
+          : NowWeatherData.fromJson(json['now'] as Map<String, dynamic>),
+      (json['lifestyle'] as List)
+          ?.map((e) =>
+              e == null ? null : Lifestyle.fromJson(e as Map<String, dynamic>))
+          ?.toList());
 }
 
 Map<String, dynamic> _$WeatherDataToJson(WeatherData instance) =>
     <String, dynamic>{
-      'fl': instance.fl,
-      'tmp': instance.tmp,
-      'cond_code': instance.condCode,
-      'cond_txt': instance.cond,
-      'wind_dir': instance.windDir,
-      'wind_sc': instance.windSc,
-      'hum': instance.hum,
-      'pres': instance.pres
+      'daily_forecast': instance.dailyForecasts,
+      'now': instance.now,
+      'lifestyle': instance.lifestyles
     };
