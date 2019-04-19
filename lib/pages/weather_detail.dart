@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:amap_location/amap_location.dart';
 import 'package:simple_permissions/simple_permissions.dart';
@@ -181,9 +184,10 @@ class WeatherState extends State<WeatherDetail> {
                                     child: Text(_weatherData.now.hum + "%",
                                         style: TextStyle(
                                             color: Colors.black45,
-                                            fontSize: dp(36)))),
+                                            fontSize: dp(36),
+                                            height: 1.2))),
                                 Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
+                                  padding: EdgeInsets.fromLTRB(0, dp(4), 0, 0),
                                   child: Text("相对湿度",
                                       style: TextStyle(
                                           color: Colors.grey,
@@ -204,7 +208,8 @@ class WeatherState extends State<WeatherDetail> {
                                     child: Text(_weatherData.now.fl + "℃",
                                         style: TextStyle(
                                             color: Colors.black45,
-                                            fontSize: dp(36)))),
+                                            fontSize: dp(36),
+                                            height: 1.2))),
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(0, dp(4), 0, 0),
                                   child: Text("体感温度",
@@ -227,7 +232,8 @@ class WeatherState extends State<WeatherDetail> {
                                     child: Text(_weatherData.now.pres + "hPa",
                                         style: TextStyle(
                                             color: Colors.black45,
-                                            fontSize: dp(36)))),
+                                            fontSize: dp(36),
+                                            height: 1.2))),
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(0, dp(4), 0, 0),
                                   child: Text("大气压强",
@@ -299,7 +305,7 @@ class WeatherState extends State<WeatherDetail> {
                     style: TextStyle(color: Colors.grey, fontSize: dp(38))),
               ],
             ),
-          )
+          ),
         ],
       ),
       drawer: Drawer(
@@ -471,8 +477,6 @@ class WeatherState extends State<WeatherDetail> {
 
     super.dispose();
   }
-
-  Widget genLifeStyelItem(Lifestyle lifestyle) {}
 }
 
 class CityItem extends StatelessWidget {

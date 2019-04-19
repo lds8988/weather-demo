@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:weather_demo/constants.dart';
 
 class RequestUtil {
-
   /// 服务器路径
   static const HOST = 'https://free-api.heweather.net/';
   static const BASE_URL = HOST + '/s6/';

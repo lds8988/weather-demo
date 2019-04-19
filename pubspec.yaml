@@ -63,7 +63,7 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
      - images/
-     - images/cond_icon/
+#     - images/cond_icon/
 #     - images/bg_weather_detail.jpg
 #     - images/ic_hum.png
 #     - images/ic_press.png

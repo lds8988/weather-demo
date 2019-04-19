@@ -45,6 +45,9 @@ class Lifestyle {
 
   Map<String, dynamic> toJson() => _$LifestyleToJson(this);
 
+  /// 获取生活指数对应类型的图标
+  ///
+  /// [type] 生活指数对应类型
   String getIcon(String type) {
     return _iconMap[type];
   }
